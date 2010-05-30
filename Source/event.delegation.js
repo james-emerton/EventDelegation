@@ -76,14 +76,17 @@ Element.implement({
 
         if(type == 'focus' || type == 'blur')
         {
-            var self = this;
-            if(this.addEventListener)
-                this.addEventListener(type, function(event) {
+            // Cobbled together from parts of MooTools...
+            var self = this,
+                wrapper = function(event) {
                     event = new Event(event, self.getWindow());
                     handler.call(self, event);
-                }, true);
+                };
+
+            if(Browser.Engine.trident)
+                this.attachEvent(type == 'focus' ? 'onfocusin' : 'onfocusout', wrapper);
             else
-                this.addEvent(type == 'focus' ? 'focusin' : 'focusout', handler);
+                this.addEventListener(type, wrapper, true);
         }
         else
             return this.addEvent(type, handler);
