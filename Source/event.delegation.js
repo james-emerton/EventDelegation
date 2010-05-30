@@ -50,7 +50,7 @@ Element.implement({
 			this.store(key, stored);
 		}
 	
-		return this.addEvent(type, function(e)
+		var handler = function(e)
 		{
 			// Get target and set defaults
 			var target = document.id(e.target),
@@ -72,7 +72,21 @@ Element.implement({
 			});
             
             return this;
-		});		
+		}
+
+        if(type == 'focus' || type == 'blur')
+        {
+            var self = this;
+            if(this.addEventListener)
+                this.addEventListener(type, function(event) {
+                    event = new Event(event, self.getWindow());
+                    handler.call(self, event);
+                }, true);
+            else
+                this.addEvent(type == 'focus' ? 'focusin' : 'focusout', handler);
+        }
+        else
+            return this.addEvent(type, handler);
 	},
     
     'delegateEvents': function(delegates, prevent, propagate)
